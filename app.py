@@ -1,78 +1,179 @@
 import streamlit as st
-from core.model_loader import load_gan_model
 import torch
+import torch.nn as nn
+from torchvision.utils import make_grid
+import numpy as np
+from PIL import Image
+import io
+import time
 
-# Premium Dashboard Configuration
+# --- إعدادات الصفحة والهوية البصرية ---
 st.set_page_config(
-    page_title="AnimeGen Pro | Next-Gen AI",
-    page_icon="✨",
+    page_title="AnimeGen AI Pro",
+    page_icon="🎨",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# Futuristic Styling Injection
-def local_css():
-    st.markdown("""
-        <style>
-        .main { background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); color: white; }
-        .stButton>button { 
-            border-radius: 20px; border: 2px solid #7000ff; 
-            background: rgba(112, 0, 255, 0.2); color: white;
-            transition: 0.3s;
-        }
-        .stButton>button:hover { background: #7000ff; box-shadow: 0 0 15px #7000ff; }
-        div[data-testid="stMetricValue"] { color: #00f2ff; }
-        </style>
+# --- استايل Glassmorphism و Dark Theme ---
+st.markdown("""
+    <style>
+    .main { background-color: #0e1117; }
+    .stApp {
+        background: linear-gradient(160deg, #0e1117 0%, #161b22 100%);
+        color: #ffffff;
+    }
+    .stButton>button {
+        width: 100%;
+        border-radius: 12px;
+        background: linear-gradient(45deg, #7928CA, #FF0080);
+        color: white;
+        border: none;
+        padding: 10px;
+        font-weight: bold;
+        transition: 0.3s;
+    }
+    .stButton>button:hover {
+        transform: scale(1.02);
+        box-shadow: 0 4px 15px rgba(255, 0, 128, 0.4);
+    }
+    .sidebar .sidebar-content {
+        background-image: linear-gradient(180deg, #161b22, #0e1117);
+    }
+    </style>
     """, unsafe_allow_html=True)
 
-local_css()
+# --- تعريف بنية مودل Generator (بناءً على الـ Notebook الخاص بك) ---
+class Generator(nn.Module):
+    def __init__(self, nz=100, ngf=64, nc=3):
+        super(Generator, self).__init__()
+        self.main = nn.Sequential(
+            nn.ConvTranspose2d(nz, ngf * 8, 4, 1, 0, bias=False),
+            nn.BatchNorm2d(ngf * 8),
+            nn.ReLU(True),
+            nn.ConvTranspose2d(ngf * 8, ngf * 4, 4, 2, 1, bias=False),
+            nn.BatchNorm2d(ngf * 4),
+            nn.ReLU(True),
+            nn.ConvTranspose2d(ngf * 4, ngf * 2, 4, 2, 1, bias=False),
+            nn.BatchNorm2d(ngf * 2),
+            nn.ReLU(True),
+            nn.ConvTranspose2d(ngf * 2, ngf, 4, 2, 1, bias=False),
+            nn.BatchNorm2d(ngf),
+            nn.ReLU(True),
+            nn.ConvTranspose2d(ngf, nc, 4, 2, 1, bias=False),
+            nn.Tanh()
+        )
 
-# Session State for History & Stats
+    def forward(self, input):
+        return self.main(input)
+
+# --- دوال المساعدة ---
+@st.cache_resource
+def load_model():
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model = Generator()
+    try:
+        # تحميل المودل من الملف المرفق
+        state_dict = torch.load("best_gan_model.pth", map_location=device)
+        model.load_state_dict(state_dict)
+        model.to(device).eval()
+        return model, device
+    except Exception as e:
+        st.error(f"Error loading model: {e}")
+        return None, device
+
+def generate_images(model, device, num_images=1, seed=None, noise_val=100):
+    if seed is not None:
+        torch.manual_seed(seed)
+    
+    noise = torch.randn(num_images, noise_val, 1, 1, device=device)
+    with torch.no_grad():
+        fake_images = model(noise).detach().cpu()
+    
+    # تحويل الصور من Tensor إلى PIL
+    grid = make_grid(fake_images, padding=2, normalize=True)
+    img_array = grid.permute(1, 2, 0).numpy()
+    img_array = (img_array * 255).astype(np.uint8)
+    return Image.fromarray(img_array)
+
+# --- إدارة حالة الجلسة (Session State) ---
 if 'history' not in st.session_state:
     st.session_state.history = []
-if 'total_gen' not in st.session_state:
-    st.session_state.total_gen = 0
 
-# Sidebar Navigation
-st.sidebar.title("🚀 AnimeGen Pro")
-page = st.sidebar.radio("Navigation", [
-    "🏠 Home", "🎨 AI Generator", "📚 Batch Gen", "🖼️ Gallery", 
-    "🧠 About GAN", "📊 Analytics", "⚙️ Settings"
-])
-
-# Loading Model
-# Note: Replace URL with your actual hosted best_gan_model.pth link
-weights_url = "best_gan_model.pth" 
-model, device = load_gan_model(weights_url)
-
-# Routing Logic
-if page == "🎨 AI Generator":
-    st.header("✨ Neural Anime Synthesis")
-    col1, col2 = st.columns([1, 2])
+# --- القائمة الجانبية (Sidebar Navigation) ---
+with st.sidebar:
+    st.title("🚀 AnimeGen Pro")
+    st.markdown("---")
+    menu = st.radio("القائمة الرئيسية", 
+        ["🏠 Home", "🎨 AI Generator", "📚 Batch Generation", "📊 Analytics", "⚙️ Settings"])
     
-    with col1:
-        st.subheader("Control Panel")
-        seed = st.number_input("Random Seed", value=6969, step=1)
-        noise_level = st.slider("Noise Intensity", 0.0, 1.0, 0.5)
-        btn = st.button("Generate Masterpiece")
+    st.markdown("---")
+    st.info(f"المنصة تعمل الآن على: **{'GPU' if torch.cuda.is_available() else 'CPU'}**")
 
-    with col2:
-        if btn:
-            with st.spinner("Decoding Latent Space..."):
-                torch.manual_seed(seed)
-                noise = torch.randn(1, 100, 1, 1, device=device)
-                with torch.no_grad():
-                    fake = model(noise).detach().cpu()
+# --- الصفحات ---
+net_model, device_type = load_model()
+
+if menu == "🏠 Home":
+    st.title("مرحباً بك في مستقبل فن الأنمي 🌌")
+    st.write("استخدم قوة الـ Generative Adversarial Networks لإنشاء شخصيات أنمي فريدة في ثوانٍ.")
+    col1, col2, col3 = st.columns(3)
+    col1.metric("المودل", "DCGAN")
+    col2.metric("الدقة", "64x64 px")
+    col3.metric("الحالة", "جاهز")
+    
+    st.image("https://raw.githubusercontent.com/pytorch/hub/master/images/dcgan_generator.png", caption="بنية الشبكة المستخدمة")
+
+elif menu == "🎨 AI Generator":
+    st.header("🎨 لوحة توليد الصور الذكية")
+    
+    col_ctrl, col_res = st.columns([1, 2])
+    
+    with col_ctrl:
+        st.subheader("إعدادات التحكم")
+        seed_input = st.number_input("الرقم السري (Seed)", value=42, step=1)
+        use_random = st.checkbox("استخدام عشوائي بالكامل")
+        noise_slider = st.select_slider("مستوى التفاصيل (Latent Dim)", options=[100], value=100)
+        
+        generate_btn = st.button("توليد الصورة الآن ✨")
+    
+    with col_res:
+        if generate_btn:
+            with st.spinner("جاري معالجة المصفوفات العصبية..."):
+                final_seed = None if use_random else seed_input
+                img = generate_images(net_model, device_type, num_images=1, seed=final_seed)
+                st.image(img, use_column_width=True, caption="الصورة المولدة بواسطة AI")
                 
-                # Process and display image logic here...
-                st.image("https://via.placeholder.com/400x400.png?text=Generated+Anime+Face", 
-                         caption=f"Seed: {seed}", use_column_width=True)
-                st.success("Generation Complete!")
-                st.session_state.total_gen += 1
+                # حفظ في التاريخ
+                st.session_state.history.append(img)
+                
+                # زر التحميل
+                buf = io.BytesIO()
+                img.save(buf, format="PNG")
+                st.download_button("تحميل الصورة 📥", buf.getvalue(), "anime_face.png", "image/png")
 
-elif page == "📊 Analytics":
-    st.title("📈 System Analytics")
-    kpi1, kpi2, kpi3 = st.columns(3)
-    kpi1.metric("Current Engine", str(device).upper())
-    kpi2.metric("Total Generations", st.session_state.total_gen)
-    kpi3.metric("Uptime", "99.9%")
+elif menu == "📚 Batch Generation":
+    st.header("📚 توليد دفعات متعددة")
+    num_batch = st.slider("عدد الصور", 4, 32, 16, step=4)
+    
+    if st.button(f"توليد {num_batch} صورة دفعة واحدة"):
+        with st.spinner("جاري إنشاء الشبكة الرسومية..."):
+            img_batch = generate_images(net_model, device_type, num_images=num_batch)
+            st.image(img_batch, use_column_width=True)
+            
+            buf = io.BytesIO()
+            img_batch.save(buf, format="PNG")
+            st.download_button("تحميل الشبكة كاملة 📥", buf.getvalue(), "batch_anime.png")
+
+elif menu == "📊 Analytics":
+    st.header("📊 لوحة البيانات الفنية")
+    st.write("تفاصيل المودل `best_gan_model.pth`:")
+    st.code(str(net_model))
+    
+    # إحصائيات وهمية للمظهر الاحترافي
+    c1, c2 = st.columns(2)
+    c1.info(f"جهاز التشغيل: {device_type}")
+    c2.success(f"عدد الصور المولدة في هذه الجلسة: {len(st.session_state.history)}")
+
+# --- تذييل الصفحة ---
+st.sidebar.markdown("---")
+st.sidebar.caption("Senior AI Project | 2024 ©")
