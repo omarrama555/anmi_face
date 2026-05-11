@@ -1,16 +1,20 @@
 .stApp {
-    background: radial-gradient(circle at top right, #0f172a, #020617);
-    color: #ffffff;
+    background-color: #050505;
+    color: #e0e0e0;
 }
 .stButton>button {
-    background: linear-gradient(90deg, #7c3aed, #db2777);
-    border-radius: 10px;
-    border: none;
-    color: white;
-    font-weight: bold;
+    background: linear-gradient(90deg, #1a1a1a, #333333);
+    color: #ffffff;
+    border: 1px solid #444;
+    border-radius: 4px;
+    width: 100%;
 }
-h1, h2 {
-    background: linear-gradient(to right, #818cf8, #f472b6);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+.stTextInput>div>div>input {
+    background-color: #1a1a1a;
+    color: white;
+    border: 1px solid #333;
+}
+h1, h2, h3 {
+    color: #ffffff;
+    font-family: 'Segoe UI', sans-serif;
 }
