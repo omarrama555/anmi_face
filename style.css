@@ -1,28 +1,227 @@
+/* === Global === */
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600&display=swap');
+
+html, body, [class*="css"] {
+    font-family: 'IBM Plex Sans', sans-serif;
+}
+
+/* === Background === */
 .stApp {
-    background-color: #0a0a0a;
+    background-color: #09090b;
+    background-image:
+        radial-gradient(ellipse 80% 40% at 50% -10%, rgba(99, 102, 241, 0.12), transparent),
+        linear-gradient(180deg, #09090b 0%, #0f0f14 100%);
+    color: #e4e4e7;
+}
+
+/* === Headings === */
+h1 {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 2rem;
+    font-weight: 600;
+    color: #f4f4f5;
+    letter-spacing: -0.03em;
+    border-bottom: 1px solid #27272a;
+    padding-bottom: 0.6rem;
+    margin-bottom: 1.2rem;
+}
+
+h2, h3 {
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 600;
+    color: #a1a1aa;
+    letter-spacing: -0.02em;
+}
+
+/* === Sidebar === */
+section[data-testid="stSidebar"] {
+    background-color: #111115;
+    border-right: 1px solid #27272a;
+}
+
+section[data-testid="stSidebar"] .stRadio label {
+    font-size: 0.875rem;
+    color: #a1a1aa;
+    transition: color 0.15s;
+}
+
+section[data-testid="stSidebar"] .stRadio label:hover {
+    color: #f4f4f5;
+}
+
+/* === Buttons === */
+.stButton > button {
+    background: #18181b;
+    border: 1px solid #3f3f46;
+    border-radius: 6px;
+    color: #e4e4e7;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    padding: 0.5rem 1.2rem;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.stButton > button:hover {
+    background: #6366f1;
+    border-color: #6366f1;
     color: #ffffff;
 }
 
-.stButton>button {
-    background-color: #1a1a1a;
-    color: #00ffcc;
-    border: 1px solid #00ffcc;
-    border-radius: 2px;
-    font-weight: bold;
+.stButton > button:active {
+    background: #4f46e5;
+    border-color: #4f46e5;
+}
+
+/* === Download Button === */
+.stDownloadButton > button {
+    background: #18181b;
+    border: 1px solid #3f3f46;
+    border-radius: 6px;
+    color: #a1a1aa;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    transition: all 0.15s;
+}
+
+.stDownloadButton > button:hover {
+    background: #27272a;
+    border-color: #6366f1;
+    color: #e4e4e7;
+}
+
+/* === Inputs & Sliders === */
+.stNumberInput input,
+.stTextInput input,
+.stSelectbox select {
+    background-color: #18181b;
+    border: 1px solid #3f3f46;
+    border-radius: 6px;
+    color: #e4e4e7;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.85rem;
+}
+
+.stSlider [data-baseweb="slider"] div[role="slider"] {
+    background-color: #6366f1;
+}
+
+/* === Metrics === */
+[data-testid="stMetricValue"] {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 1.4rem;
+    color: #f4f4f5;
+}
+
+[data-testid="stMetricLabel"] {
+    font-size: 0.75rem;
+    color: #71717a;
     text-transform: uppercase;
+    letter-spacing: 0.06em;
 }
 
-.stButton>button:hover {
-    background-color: #00ffcc;
-    color: #000000;
+/* === Progress Bar === */
+.stProgress > div > div {
+    background: linear-gradient(90deg, #6366f1, #a78bfa);
+    border-radius: 4px;
 }
 
-div[data-testid="stSidebarNav"] {
-    background-color: #111;
+.stProgress {
+    background-color: #27272a;
+    border-radius: 4px;
 }
 
-h1, h2 {
-    border-bottom: 2px solid #00ffcc;
-    padding-bottom: 10px;
-    font-family: 'Courier New', monospace;
+/* === Tabs === */
+.stTabs [data-baseweb="tab-list"] {
+    border-bottom: 1px solid #27272a;
+    gap: 0;
+}
+
+.stTabs [data-baseweb="tab"] {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.8rem;
+    color: #71717a;
+    padding: 0.5rem 1.2rem;
+    border-bottom: 2px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+}
+
+.stTabs [aria-selected="true"] {
+    color: #e4e4e7;
+    border-bottom: 2px solid #6366f1;
+    background: transparent;
+}
+
+/* === Alerts === */
+.stSuccess {
+    background-color: #052e16;
+    border: 1px solid #166534;
+    border-radius: 6px;
+    color: #bbf7d0;
+}
+
+.stError {
+    background-color: #1c0a0a;
+    border: 1px solid #7f1d1d;
+    border-radius: 6px;
+    color: #fca5a5;
+}
+
+.stInfo {
+    background-color: #0c1a2e;
+    border: 1px solid #1e3a5f;
+    border-radius: 6px;
+    color: #93c5fd;
+}
+
+/* === Captions & Small Text === */
+.stCaption, small, .stMarkdown small {
+    color: #52525b;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+}
+
+/* === Dividers === */
+hr {
+    border: none;
+    border-top: 1px solid #27272a;
+    margin: 1.5rem 0;
+}
+
+/* === Code blocks === */
+code {
+    background-color: #18181b;
+    border: 1px solid #27272a;
+    border-radius: 4px;
+    color: #a78bfa;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.1rem 0.35rem;
+}
+
+/* === Spinner === */
+.stSpinner > div {
+    border-top-color: #6366f1 !important;
+}
+
+/* === Image captions === */
+[data-testid="stImage"] p {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    color: #52525b;
+    text-align: center;
+    margin-top: 0.25rem;
+}
+
+/* === File uploader === */
+[data-testid="stFileUploader"] {
+    background-color: #18181b;
+    border: 1px dashed #3f3f46;
+    border-radius: 8px;
+    transition: border-color 0.15s;
+}
+
+[data-testid="stFileUploader"]:hover {
+    border-color: #6366f1;
 }
