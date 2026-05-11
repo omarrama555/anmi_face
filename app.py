@@ -343,7 +343,7 @@ page = st.sidebar.radio(
     "Navigation",
     [
         "AI Generator",
-        "Image Scanner",
+        "Vision Scanner",
         "Batch Generator",
         "Image Saved",
         "Generation History",
