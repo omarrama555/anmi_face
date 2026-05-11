@@ -16,7 +16,7 @@ from datetime import datetime
 
 # --- Page Config ---
 st.set_page_config(
-    page_title="AnimeGen Pro AI",
+    page_title="AniVision AI",
     page_icon="A",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -78,7 +78,7 @@ def show_login_page():
                 st.rerun()
             else:
                 st.error("Invalid username or password.")
-        st.caption("Default credentials — admin / admin123  |  user / user123")
+        
 
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
