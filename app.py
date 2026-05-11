@@ -1,25 +1,14 @@
 import streamlit as st
 import torch
 import torch.nn as nn
-from torchvision.utils import make_grid
-import numpy as np
+from torchvision import transforms
 from PIL import Image
 import io
 
 # --- Page Config ---
-st.set_page_config(page_title="AnimeGen AI Pro", page_icon="🎨", layout="wide")
+st.set_page_config(page_title="AnimeGen Pro AI", page_icon="🕵️‍♀️", layout="wide")
 
-# --- Load CSS ---
-def local_css(file_name):
-    try:
-        with open(file_name) as f:
-            st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
-    except:
-        pass
-
-local_css("style.css")
-
-# --- Model Architecture ---
+# --- Model Architectures ---
 class Generator(nn.Module):
     def __init__(self, nz=100, ngf=64, nc=3):
         super(Generator, self).__init__()
@@ -43,64 +32,91 @@ class Generator(nn.Module):
     def forward(self, input):
         return self.main(input)
 
+class Discriminator(nn.Module):
+    def __init__(self, nc=3, ndf=64):
+        super(Discriminator, self).__init__()
+        self.main = nn.Sequential(
+            nn.Conv2d(nc, ndf, 4, 2, 1, bias=False),
+            nn.LeakyReLU(0.2, inplace=True),
+            nn.Conv2d(ndf, ndf * 2, 4, 2, 1, bias=False),
+            nn.BatchNorm2d(ndf * 2),
+            nn.LeakyReLU(0.2, inplace=True),
+            nn.Conv2d(ndf * 2, ndf * 4, 4, 2, 1, bias=False),
+            nn.BatchNorm2d(ndf * 4),
+            nn.LeakyReLU(0.2, inplace=True),
+            nn.Conv2d(ndf * 4, ndf * 8, 4, 2, 1, bias=False),
+            nn.BatchNorm2d(ndf * 8),
+            nn.LeakyReLU(0.2, inplace=True),
+            nn.Conv2d(ndf * 8, 1, 4, 1, 0, bias=False),
+            nn.Sigmoid()
+        )
+
+    def forward(self, input):
+        return self.main(input)
+
 @st.cache_resource
-def load_model():
+def load_models():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = Generator()
+    gen = Generator()
+    disc = Discriminator()
+    
     checkpoint = torch.load("best_gan_model.pth", map_location=device)
     
-    # Fix: Extract only the Generator weights from the checkpoint dictionary
-    if "modelG_state_dict" in checkpoint:
-        model.load_state_dict(checkpoint["modelG_state_dict"])
-    else:
-        model.load_state_dict(checkpoint)
+    # Load weights
+    gen.load_state_dict(checkpoint["modelG_state_dict"])
+    disc.load_state_dict(checkpoint["modelD_state_dict"])
+    
+    gen.to(device).eval()
+    disc.to(device).eval()
+    return gen, disc, device
+
+gen, disc, device = load_models()
+
+# --- Sidebar Navigation ---
+st.sidebar.title("🚀 AnimeGen Pro")
+page = st.sidebar.radio("Navigation", ["Home", "AI Generator", "Vision Scanner (Fake vs Real)"])
+
+if page == "Home":
+    st.title("Dual-Core Anime AI 🌌")
+    st.write("Generate high-quality anime faces or use the Discriminator to detect AI-generated art.")
+
+elif page == "AI Generator":
+    st.header("🎨 Image Synthesis")
+    seed = st.number_input("Seed", value=42)
+    if st.button("Generate ✨"):
+        noise = torch.randn(1, 100, 1, 1, device=device)
+        with torch.no_grad():
+            img_tensor = gen(noise).detach().cpu()[0]
+        # De-normalize and convert to PIL
+        img_array = ((img_tensor.permute(1, 2, 0).numpy() * 0.5 + 0.5) * 255).astype('uint8')
+        st.image(Image.fromarray(img_array), width=300)
+
+elif page == "Vision Scanner (Fake vs Real)":
+    st.header("🕵️‍♀️ AI Authenticator")
+    st.write("Upload an image (64x64 preferred) to check if it's Real or AI-Generated.")
+    
+    uploaded_file = st.file_uploader("Choose an anime face image...", type=["jpg", "png", "jpeg"])
+    
+    if uploaded_file:
+        img = Image.open(uploaded_file).convert('RGB').resize((64, 64))
+        st.image(img, caption="Target Image", width=200)
         
-    model.to(device).eval()
-    return model, device
-
-def generate_images(model, device, num_images=1, seed=None):
-    if seed is not None:
-        torch.manual_seed(seed)
-    noise = torch.randn(num_images, 100, 1, 1, device=device)
-    with torch.no_grad():
-        fake = model(noise).detach().cpu()
-    grid = make_grid(fake, padding=2, normalize=True)
-    img_array = (grid.permute(1, 2, 0).numpy() * 255).astype(np.uint8)
-    return Image.fromarray(img_array)
-
-# --- Sidebar ---
-with st.sidebar:
-    st.title("🚀 AnimeGen Pro")
-    menu = st.radio("Navigation", ["Home", "AI Generator", "Analytics"])
-    st.markdown("---")
-    st.caption(f"Running on: {torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'CPU'}")
-
-# --- Logic ---
-net_model, device_type = load_model()
-
-if menu == "Home":
-    st.title("Welcome to the Future of Anime Art 🌌")
-    st.write("Leveraging Deep Convolutional GANs to synthesize unique characters.")
-    c1, c2, c3 = st.columns(3)
-    c1.metric("Model", "DCGAN")
-    c2.metric("Resolution", "64x64 px")
-    c3.metric("Status", "Ready")
-
-elif menu == "AI Generator":
-    st.header("🎨 Neural Generator")
-    col1, col2 = st.columns([1, 2])
-    with col1:
-        seed = st.number_input("Seed", value=42)
-        if st.button("Generate ✨"):
-            img = generate_images(net_model, device_type, 1, seed)
-            st.session_state['last_img'] = img
-    with col2:
-        if 'last_img' in st.session_state:
-            st.image(st.session_state['last_img'], use_column_width=True)
-            buf = io.BytesIO()
-            st.session_state['last_img'].save(buf, format="PNG")
-            st.download_button("Download PNG", buf.getvalue(), "anime.png")
-
-elif menu == "Analytics":
-    st.header("📊 Model Technical Specs")
-    st.code(str(net_model))
+        # Preprocess
+        transform = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+        ])
+        img_tensor = transform(img).unsqueeze(0).to(device)
+        
+        if st.button("Analyze Image"):
+            with torch.no_grad():
+                output = disc(img_tensor).item()
+            
+            # Confidence Logic (Close to 1 is Real, Close to 0 is Fake)
+            st.subheader("Results:")
+            if output > 0.5:
+                st.success(f"Prediction: REAL (Confidence: {output*100:.2f}%)")
+            else:
+                st.error(f"Prediction: FAKE/AI-GENERATED (Confidence: {(1-output)*100:.2f}%)")
+            
+            st.progress(output)
