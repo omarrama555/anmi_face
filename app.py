@@ -149,7 +149,7 @@ st.sidebar.caption("GAN-based Anime Face Generation and Authentication")
 
 page = st.sidebar.radio(
     "Navigation",
-    ["Home", "AI Generator", "Vision Scanner", "Batch Generator", "Generation History", "Model Info"]
+    ["AI Generator", "Vision Scanner", "Batch Generator", "Generation History"]
 )
 
 st.sidebar.markdown("---")
@@ -160,38 +160,8 @@ st.sidebar.metric("Favorites Saved", len(st.session_state.favorite_seeds))
 st.sidebar.markdown(f"**Device:** `{'CUDA' if torch.cuda.is_available() else 'CPU'}`")
 st.sidebar.markdown(f"**Model Status:** `{'Loaded' if model_loaded else 'Not Found'}`")
 
-# ==================== HOME ====================
-if page == "Home":
-    st.title("AnimeGen Pro AI")
-    st.markdown(
-        "A dual-purpose deep learning tool for high-quality anime face synthesis "
-        "and AI-generated image authentication using a trained DCGAN architecture."
-    )
-
-    col1, col2, col3 = st.columns(3)
-    col1.metric("Architecture", "DCGAN")
-    col2.metric("Output Resolution", "64 x 64 px")
-    col3.metric("Latent Dimension", "100")
-
-    st.markdown("---")
-    st.subheader("Features")
-    features = [
-        ("AI Generator", "Generate anime faces from random or seeded latent vectors."),
-        ("Vision Scanner", "Authenticate images using the trained discriminator network."),
-        ("Batch Generator", "Generate and compare multiple images in one pass."),
-        ("Post-Processing Controls", "Adjust brightness, contrast, and sharpness on generated images."),
-        ("Image Download", "Export any generated or scanned result as a PNG file."),
-        ("Generation History", "Review all generation and scan sessions with timestamps."),
-        ("Favorite Seeds", "Save seeds that produce high-quality results for later reuse."),
-        ("Confidence Meter", "Visual confidence bar with threshold-based verdict display."),
-        ("Session Statistics", "Live sidebar metrics tracking total generations and scans."),
-        ("Model Info Panel", "Inspect architecture details, parameter counts, and device info."),
-    ]
-    for i, (title, desc) in enumerate(features, 1):
-        st.markdown(f"**{i}. {title}** — {desc}")
-
 # ==================== AI GENERATOR ====================
-elif page == "AI Generator":
+if page == "AI Generator":
     st.header("Image Synthesis")
 
     if not model_loaded:
@@ -393,49 +363,3 @@ elif page == "Generation History":
         if st.button("Clear Scan History"):
             st.session_state.scan_history = []
             st.success("Scan history cleared.")
-
-# ==================== MODEL INFO (Feature 10) ====================
-elif page == "Model Info":
-    st.header("Model Information")
-
-    def count_params(model):
-        return sum(p.numel() for p in model.parameters())
-
-    def count_trainable(model):
-        return sum(p.numel() for p in model.parameters() if p.requires_grad)
-
-    col1, col2 = st.columns(2)
-
-    with col1:
-        st.subheader("Generator")
-        st.markdown("**Architecture:** DCGAN Transposed Convolution Stack")
-        st.markdown("**Input:** Latent vector of shape `(1, 100, 1, 1)`")
-        st.markdown("**Output:** RGB image `(3, 64, 64)`")
-        st.markdown("**Activation:** ReLU (hidden), Tanh (output)")
-        st.markdown("**Normalization:** BatchNorm2d")
-        if model_loaded:
-            st.metric("Total Parameters", f"{count_params(gen):,}")
-            st.metric("Trainable Parameters", f"{count_trainable(gen):,}")
-
-    with col2:
-        st.subheader("Discriminator")
-        st.markdown("**Architecture:** DCGAN Strided Convolution Stack")
-        st.markdown("**Input:** RGB image `(3, 64, 64)`")
-        st.markdown("**Output:** Scalar probability `[0, 1]`")
-        st.markdown("**Activation:** LeakyReLU (hidden), Sigmoid (output)")
-        st.markdown("**Normalization:** BatchNorm2d")
-        if model_loaded:
-            st.metric("Total Parameters", f"{count_params(disc):,}")
-            st.metric("Trainable Parameters", f"{count_trainable(disc):,}")
-
-    st.markdown("---")
-    st.subheader("Runtime Environment")
-    env_col1, env_col2 = st.columns(2)
-    env_col1.metric("PyTorch Version", torch.__version__)
-    env_col1.metric("CUDA Available", str(torch.cuda.is_available()))
-    if torch.cuda.is_available():
-        env_col2.metric("GPU", torch.cuda.get_device_name(0))
-        env_col2.metric("VRAM", f"{torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB")
-    else:
-        env_col2.metric("Device", "CPU")
-        env_col2.metric("Threads", str(torch.get_num_threads()))
