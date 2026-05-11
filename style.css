@@ -1,0 +1,16 @@
+.stApp {
+    background: radial-gradient(circle at top right, #0f172a, #020617);
+    color: #ffffff;
+}
+.stButton>button {
+    background: linear-gradient(90deg, #7c3aed, #db2777);
+    border-radius: 10px;
+    border: none;
+    color: white;
+    font-weight: bold;
+}
+h1, h2 {
+    background: linear-gradient(to right, #818cf8, #f472b6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
