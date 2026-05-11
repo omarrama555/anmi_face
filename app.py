@@ -345,7 +345,7 @@ page = st.sidebar.radio(
         "AI Generator",
         "Vision Scanner",
         "Batch Generator",
-        "Image Saved",
+        "Image Gallary",
         "Generation History",
         "Seed Evolution",
         "GAN Inversion",
