@@ -332,7 +332,7 @@ if st.sidebar.button(theme_label, use_container_width=True):
     st.session_state.theme = "light" if get_theme() == "dark" else "dark"
     st.rerun()
 
-if st.sidebar.button("🚪 Logout", use_container_width=True):
+if st.sidebar.button(" Logout", use_container_width=True):
     st.session_state.logged_in = False
     st.session_state.username = ""
     st.rerun()
@@ -343,12 +343,11 @@ page = st.sidebar.radio(
     "Navigation",
     [
         "AI Generator",
-        "Vision Scanner",
+        "Image Scanner",
         "Batch Generator",
-        "Image Gallery",
+        "Image Saved",
         "Generation History",
-        "── Advanced ──",
-        "Seed Evolution (GA)",
+        "Seed Evolution",
         "GAN Inversion",
         "Style Transfer",
         "GIF Export",
