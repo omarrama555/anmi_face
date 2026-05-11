@@ -16,7 +16,7 @@ from datetime import datetime
 
 # --- Page Config ---
 st.set_page_config(
-    page_title="AniVision AI",
+    page_title="Anime Vision AI",
     page_icon="A",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -66,7 +66,7 @@ def show_login_page():
 
     col_l, col_m, col_r = st.columns([1, 2, 1])
     with col_m:
-        st.markdown('<div class="login-title">AnimeGen Pro AI</div>', unsafe_allow_html=True)
+        st.markdown('<div class="login-title">Anime Vision AI</div>', unsafe_allow_html=True)
         st.markdown('<div class="login-sub">GAN-based Anime Generation & Authentication</div>', unsafe_allow_html=True)
         st.markdown("---")
         username = st.text_input("Username", placeholder="Enter username")
