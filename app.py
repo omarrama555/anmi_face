@@ -394,12 +394,7 @@ st.sidebar.download_button("⬇ Export Report", data=export_data,
                            use_container_width=True)
 
 
-# ══════════════════════════════════════════════════════════════
-# DIVIDER PAGE (non-clickable header)
-# ══════════════════════════════════════════════════════════════
-if page == "── Advanced ──":
-    st.info("اختر إحدى الأدوات المتقدمة من القائمة الجانبية.")
-    st.stop()
+
 
 
 # ══════════════════════════════════════════════════════════════
