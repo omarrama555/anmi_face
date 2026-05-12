@@ -28,17 +28,17 @@ html, body, [class*="css"] {
 
 /* === Background === */
 .stApp {
-    background-color: #09090b;
+    background-color: #16162a;
     background-image:
-        radial-gradient(ellipse 80% 40% at 50% -10%, rgba(99,102,241,0.15), transparent),
-        linear-gradient(180deg, #09090b 0%, #0f0f14 100%);
+        radial-gradient(ellipse 80% 40% at 50% -10%, rgba(99,102,241,0.30), transparent),
+        linear-gradient(180deg, #1a1a35 0%, #16162a 50%, #1e1e3a 100%);
     color: #e4e4e7;
     animation: bgPulse 6s ease-in-out infinite alternate;
 }
 
 /* === Main content block === */
 .main .block-container {
-    background: rgba(9, 9, 18, 0.55);
+    background: rgba(20, 20, 40, 0.35);
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
     border: 1px solid rgba(99,102,241,0.2);
