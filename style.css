@@ -5,13 +5,54 @@ html, body, [class*="css"] {
     font-family: 'IBM Plex Sans', sans-serif;
 }
 
-/* === Background === */
+/* === Background with 3D Image === */
 .stApp {
     background-color: #09090b;
     background-image:
-        radial-gradient(ellipse 80% 40% at 50% -10%, rgba(99, 102, 241, 0.12), transparent),
-        linear-gradient(180deg, #09090b 0%, #0f0f14 100%);
+        /* Dark overlay for readability */
+        linear-gradient(
+            135deg,
+            rgba(6, 6, 20, 0.82) 0%,
+            rgba(9, 9, 20, 0.70) 40%,
+            rgba(6, 6, 18, 0.82) 100%
+        ),
+        /* Indigo glow on top */
+        radial-gradient(ellipse 70% 50% at 50% 0%, rgba(99, 102, 241, 0.18), transparent 70%),
+        /* The 3D background image */
+        url("image_anmi.png");
+    background-size: cover;
+    background-position: center center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
     color: #e4e4e7;
+
+    /* Subtle 3D depth illusion via perspective */
+    perspective: 1000px;
+}
+
+/* Animated shimmer layer on top of everything for 3D feel */
+.stApp::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+        radial-gradient(ellipse 60% 30% at 50% 100%, rgba(99, 102, 241, 0.10), transparent 70%),
+        radial-gradient(ellipse 40% 20% at 20% 50%, rgba(139, 92, 246, 0.07), transparent 60%),
+        radial-gradient(ellipse 40% 20% at 80% 50%, rgba(59, 130, 246, 0.07), transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+    animation: bgPulse 8s ease-in-out infinite alternate;
+}
+
+@keyframes bgPulse {
+    0%   { opacity: 0.6; }
+    100% { opacity: 1.0; }
+}
+
+/* Make sure all Streamlit content sits above the pseudo-element */
+.stApp > * {
+    position: relative;
+    z-index: 1;
 }
 
 /* === Headings === */
@@ -21,22 +62,44 @@ h1 {
     font-weight: 600;
     color: #f4f4f5;
     letter-spacing: -0.03em;
-    border-bottom: 1px solid #27272a;
+    border-bottom: 1px solid rgba(99, 102, 241, 0.4);
     padding-bottom: 0.6rem;
     margin-bottom: 1.2rem;
+    text-shadow:
+        0 0 20px rgba(99, 102, 241, 0.6),
+        0 0 40px rgba(99, 102, 241, 0.3);
 }
 
 h2, h3 {
     font-family: 'IBM Plex Mono', monospace;
     font-weight: 600;
-    color: #a1a1aa;
+    color: #c4b5fd;
     letter-spacing: -0.02em;
+    text-shadow: 0 0 16px rgba(139, 92, 246, 0.5);
+}
+
+/* === Main content area — frosted glass card === */
+.main .block-container {
+    background: rgba(9, 9, 18, 0.65);
+    backdrop-filter: blur(18px) saturate(1.4);
+    -webkit-backdrop-filter: blur(18px) saturate(1.4);
+    border: 1px solid rgba(99, 102, 241, 0.18);
+    border-radius: 16px;
+    box-shadow:
+        0 4px 40px rgba(0, 0, 0, 0.6),
+        0 0 0 1px rgba(99, 102, 241, 0.08) inset,
+        0 8px 80px rgba(99, 102, 241, 0.06);
+    padding: 2rem 2.5rem;
+    margin-top: 1rem;
 }
 
 /* === Sidebar === */
 section[data-testid="stSidebar"] {
-    background-color: #111115;
-    border-right: 1px solid #27272a;
+    background: rgba(8, 8, 16, 0.80);
+    backdrop-filter: blur(20px) saturate(1.3);
+    -webkit-backdrop-filter: blur(20px) saturate(1.3);
+    border-right: 1px solid rgba(99, 102, 241, 0.22);
+    box-shadow: 4px 0 30px rgba(0, 0, 0, 0.5);
 }
 
 section[data-testid="stSidebar"] .stRadio label {
@@ -49,10 +112,18 @@ section[data-testid="stSidebar"] .stRadio label:hover {
     color: #f4f4f5;
 }
 
+/* Sidebar title glow */
+section[data-testid="stSidebar"] h1,
+section[data-testid="stSidebar"] h2,
+section[data-testid="stSidebar"] h3 {
+    text-shadow: 0 0 12px rgba(99, 102, 241, 0.5);
+}
+
 /* === Buttons === */
 .stButton > button {
-    background: #18181b;
-    border: 1px solid #3f3f46;
+    background: rgba(24, 24, 27, 0.75);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(99, 102, 241, 0.35);
     border-radius: 6px;
     color: #e4e4e7;
     font-family: 'IBM Plex Mono', monospace;
@@ -60,13 +131,15 @@ section[data-testid="stSidebar"] .stRadio label:hover {
     font-weight: 600;
     letter-spacing: 0.04em;
     padding: 0.5rem 1.2rem;
-    transition: background 0.15s, border-color 0.15s, color 0.15s;
+    transition: background 0.15s, border-color 0.15s, color 0.15s, box-shadow 0.15s;
+    box-shadow: 0 0 12px rgba(99, 102, 241, 0.15);
 }
 
 .stButton > button:hover {
     background: #6366f1;
     border-color: #6366f1;
     color: #ffffff;
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.5), 0 0 40px rgba(99, 102, 241, 0.2);
 }
 
 .stButton > button:active {
@@ -76,8 +149,9 @@ section[data-testid="stSidebar"] .stRadio label:hover {
 
 /* === Download Button === */
 .stDownloadButton > button {
-    background: #18181b;
-    border: 1px solid #3f3f46;
+    background: rgba(24, 24, 27, 0.75);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(63, 63, 70, 0.6);
     border-radius: 6px;
     color: #a1a1aa;
     font-family: 'IBM Plex Mono', monospace;
@@ -86,25 +160,34 @@ section[data-testid="stSidebar"] .stRadio label:hover {
 }
 
 .stDownloadButton > button:hover {
-    background: #27272a;
+    background: rgba(39, 39, 42, 0.85);
     border-color: #6366f1;
     color: #e4e4e7;
+    box-shadow: 0 0 16px rgba(99, 102, 241, 0.3);
 }
 
 /* === Inputs & Sliders === */
 .stNumberInput input,
 .stTextInput input,
 .stSelectbox select {
-    background-color: #18181b;
-    border: 1px solid #3f3f46;
+    background-color: rgba(24, 24, 27, 0.80);
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(99, 102, 241, 0.25);
     border-radius: 6px;
     color: #e4e4e7;
     font-family: 'IBM Plex Mono', monospace;
     font-size: 0.85rem;
 }
 
+.stNumberInput input:focus,
+.stTextInput input:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 12px rgba(99, 102, 241, 0.35);
+}
+
 .stSlider [data-baseweb="slider"] div[role="slider"] {
     background-color: #6366f1;
+    box-shadow: 0 0 10px rgba(99, 102, 241, 0.6);
 }
 
 /* === Metrics === */
@@ -112,6 +195,7 @@ section[data-testid="stSidebar"] .stRadio label:hover {
     font-family: 'IBM Plex Mono', monospace;
     font-size: 1.4rem;
     color: #f4f4f5;
+    text-shadow: 0 0 10px rgba(99, 102, 241, 0.4);
 }
 
 [data-testid="stMetricLabel"] {
@@ -125,17 +209,19 @@ section[data-testid="stSidebar"] .stRadio label:hover {
 .stProgress > div > div {
     background: linear-gradient(90deg, #6366f1, #a78bfa);
     border-radius: 4px;
+    box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
 }
 
 .stProgress {
-    background-color: #27272a;
+    background-color: rgba(39, 39, 42, 0.6);
     border-radius: 4px;
 }
 
 /* === Tabs === */
 .stTabs [data-baseweb="tab-list"] {
-    border-bottom: 1px solid #27272a;
+    border-bottom: 1px solid rgba(99, 102, 241, 0.25);
     gap: 0;
+    background: transparent;
 }
 
 .stTabs [data-baseweb="tab"] {
@@ -145,31 +231,36 @@ section[data-testid="stSidebar"] .stRadio label:hover {
     padding: 0.5rem 1.2rem;
     border-bottom: 2px solid transparent;
     transition: color 0.15s, border-color 0.15s;
+    background: transparent;
 }
 
 .stTabs [aria-selected="true"] {
     color: #e4e4e7;
     border-bottom: 2px solid #6366f1;
     background: transparent;
+    text-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
 }
 
-/* === Alerts === */
+/* === Alerts — semi-transparent === */
 .stSuccess {
-    background-color: #052e16;
+    background-color: rgba(5, 46, 22, 0.75);
+    backdrop-filter: blur(8px);
     border: 1px solid #166534;
     border-radius: 6px;
     color: #bbf7d0;
 }
 
 .stError {
-    background-color: #1c0a0a;
+    background-color: rgba(28, 10, 10, 0.75);
+    backdrop-filter: blur(8px);
     border: 1px solid #7f1d1d;
     border-radius: 6px;
     color: #fca5a5;
 }
 
 .stInfo {
-    background-color: #0c1a2e;
+    background-color: rgba(12, 26, 46, 0.75);
+    backdrop-filter: blur(8px);
     border: 1px solid #1e3a5f;
     border-radius: 6px;
     color: #93c5fd;
@@ -177,7 +268,7 @@ section[data-testid="stSidebar"] .stRadio label:hover {
 
 /* === Captions & Small Text === */
 .stCaption, small, .stMarkdown small {
-    color: #52525b;
+    color: #71717a;
     font-family: 'IBM Plex Mono', monospace;
     font-size: 0.72rem;
 }
@@ -185,14 +276,14 @@ section[data-testid="stSidebar"] .stRadio label:hover {
 /* === Dividers === */
 hr {
     border: none;
-    border-top: 1px solid #27272a;
+    border-top: 1px solid rgba(99, 102, 241, 0.2);
     margin: 1.5rem 0;
 }
 
 /* === Code blocks === */
 code {
-    background-color: #18181b;
-    border: 1px solid #27272a;
+    background-color: rgba(24, 24, 27, 0.80);
+    border: 1px solid rgba(99, 102, 241, 0.2);
     border-radius: 4px;
     color: #a78bfa;
     font-family: 'IBM Plex Mono', monospace;
@@ -209,19 +300,54 @@ code {
 [data-testid="stImage"] p {
     font-family: 'IBM Plex Mono', monospace;
     font-size: 0.72rem;
-    color: #52525b;
+    color: #71717a;
     text-align: center;
     margin-top: 0.25rem;
 }
 
 /* === File uploader === */
 [data-testid="stFileUploader"] {
-    background-color: #18181b;
-    border: 1px dashed #3f3f46;
+    background-color: rgba(24, 24, 27, 0.70);
+    backdrop-filter: blur(8px);
+    border: 1px dashed rgba(99, 102, 241, 0.35);
     border-radius: 8px;
-    transition: border-color 0.15s;
+    transition: border-color 0.15s, box-shadow 0.15s;
 }
 
 [data-testid="stFileUploader"]:hover {
     border-color: #6366f1;
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.2);
 }
+
+/* === Login Box — extra glow === */
+.login-box {
+    background: rgba(18, 18, 22, 0.85) !important;
+    backdrop-filter: blur(20px) !important;
+    box-shadow:
+        0 8px 40px rgba(99, 102, 241, 0.25),
+        0 0 80px rgba(99, 102, 241, 0.10),
+        inset 0 1px 0 rgba(255,255,255,0.05) !important;
+}
+
+/* === Neon glow on radio selected state === */
+.stRadio [data-baseweb="radio"] [aria-checked="true"] ~ div {
+    color: #a78bfa !important;
+}
+
+/* === Scrollbar === */
+::-webkit-scrollbar {
+    width: 6px;
+}
+::-webkit-scrollbar-track {
+    background: rgba(9, 9, 18, 0.5);
+}
+::-webkit-scrollbar-thumb {
+    background: rgba(99, 102, 241, 0.4);
+    border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(99, 102, 241, 0.7);
+}
+
+/* ── LIGHT MODE OVERRIDES (unchanged logic, updated for glass) ── */
+/* Applied via Python when theme == "light" */
