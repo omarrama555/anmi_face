@@ -19,7 +19,7 @@ html, body, [class*="css"] {
         /* Indigo glow on top */
         radial-gradient(ellipse 70% 50% at 50% 0%, rgba(99, 102, 241, 0.18), transparent 70%),
         /* The 3D background image */
-        url("image_anmi.png");
+        url("app/static/image_anmi.png");
     background-size: cover;
     background-position: center center;
     background-attachment: fixed;
